@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System;using System.Windows.Forms;
+using System.IO;
 
 namespace WindowsFormsApp1
 {
@@ -20,18 +17,6 @@ namespace WindowsFormsApp1
     class MainClass
     {
         Random rand = new Random();
-
-        public void circTest(TextBox field)
-        {
-            Circle circ = new Circle((float)rand.Next(15) + 1);
-            field.Text = "Circle info:\r\n" + circ.info();
-        }
-
-        public void coneTest(TextBox field)
-        {
-            Cone cone = new Cone((float)rand.Next(15) + 1, (float)rand.Next(31) + 1);
-            field.Text = "Cone info:\r\n" + cone.info(true);
-        }
 
         public void circTask(TextBox field, int N, bool detailed)
         {
@@ -94,12 +79,48 @@ namespace WindowsFormsApp1
             {
                 field.Text += "CONE " + (i + 1) + "\r\n" + arr[i].info(true) + "\r\n";
             }
-        }
-    }
+		}
+
+		public void WriteToFile(String path, TextBox field)
+		{
+			FileStream fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Write);
+			BinaryWriter writer = new BinaryWriter(fileStream);
+
+			writer.Write(field.Text);
+
+			writer.Close();
+			fileStream.Close();
+		}
+
+		public void ReadFromFile(String path, TextBox field)
+		{
+			FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+			BinaryReader reader = new BinaryReader(fileStream);
+
+			field.Text = reader.ReadString();
+
+			reader.Close();
+			fileStream.Close();
+		}
+
+
+		public void circTest(TextBox field)
+		{
+			Circle circ = new Circle((float)rand.Next(15) + 1);
+			field.Text = "Circle info:\r\n" + circ.info();
+		}
+
+		public void coneTest(TextBox field)
+		{
+			Cone cone = new Cone((float)rand.Next(15) + 1, (float)rand.Next(31) + 1);
+			field.Text = "Cone info:\r\n" + cone.info(true);
+		}
+	}
 
     class Circle
     {
         public float R; //радиус окружности
+
         public Circle(float radius)
         {
             this.R = radius;
@@ -117,12 +138,6 @@ namespace WindowsFormsApp1
             return (float)(2 * this.R * Math.PI);
         }
 
-        //вывод инф-ы об окружности
-        public void getInfo()
-        {
-            Console.WriteLine("Radius: " + R + "\r\nLength: " + getLength() + "\r\nArea: " + getArea() + "\r\n");
-        }
-
         public string info()
         {
             return "Radius: " + R + "\r\nLength: " + getLength() + "\r\nArea: " + getArea() + "\r\n";
@@ -131,7 +146,8 @@ namespace WindowsFormsApp1
 
     class Cone : Circle
     {
-        float H; //высота конуса
+        public float H; //высота конуса
+
         public Cone(float radius, float height) : base(radius)
         {
             this.H = height;
@@ -155,20 +171,7 @@ namespace WindowsFormsApp1
             return (getArea() * this.H) / 3;
         }
 
-        //вывод инф-ы о конусе (краткой)
-        public new void getInfo()
-        {
-            Console.WriteLine("Radius: " + R + "\r\nHeight: " + H + "\r\nVolume: " + getVolume() + "\r\n");
-        }
-
-        //вывод подробной инф-ы о конусе
-        public void getInfo(bool detailed)
-        {
-            getInfo();
-            if (detailed) Console.WriteLine("Surface area: " + getArea() + "\r\n");
-        }
-
-        public new string info()
+        public string info()
         {
             return "Radius: " + R + "\r\nHeight: " + H + "\r\nVolume: " + getVolume() + "\r\n";
         }
